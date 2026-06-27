@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Zomervakantie 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f0; color: #1a2e1a; min-height: 100vh; padding-bottom: 2rem;
+  }
+  header {
+    background: #2d5a27; color: white; padding: 1.2rem 1rem 0.8rem;
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { font-size: 1.05rem; font-weight: 600; }
+  header p { font-size: 0.72rem; opacity: 0.7; margin-top: 2px; }
+  .today-btn {
+    position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    font-size: 0.72rem; font-weight: 500; padding: 5px 11px;
+    border-radius: 20px; cursor: pointer;
+  }
+  .phase-tabs {
+    display: flex; background: #224a1e; overflow-x: auto; scrollbar-width: none;
+  }
+  .phase-tabs::-webkit-scrollbar { display: none; }
+  .phase-tab {
+    flex-shrink: 0; color: rgba(255,255,255,0.6); border: none;
+    background: none; font-size: 0.72rem; padding: 7px 14px;
+    cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .phase-tab.active { color: white; border-bottom-color: #7cb87c; font-weight: 600; }
+  .day-nav {
+    display: flex; gap: 6px; padding: 0.65rem 1rem;
+    overflow-x: auto; scrollbar-width: none;
+    background: #2d5a27; border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  .day-nav::-webkit-scrollbar { display: none; }
+  .day-pill {
+    flex-shrink: 0; background: rgba(255,255,255,0.15); color: white;
+    border: none; border-radius: 20px; padding: 4px 11px;
+    font-size: 0.72rem; cursor: pointer; white-space: nowrap;
+  }
+  .day-pill.active { background: white; color: #2d5a27; font-weight: 600; }
+  .content { padding: 1rem; max-width: 480px; margin: 0 auto; }
+  .day-header {
+    background: white; border-radius: 14px; padding: 1rem 1.1rem;
+    margin-bottom: 0.75rem; border-left: 4px solid #2d5a27;
+  }
+  .day-header .date-label {
+    font-size: 0.68rem; color: #6b7c6b; text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 600;
+  }
+  .day-header h2 { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
+  .night-badge {
+    display: inline-block; margin-top: 6px; background: #eef4ee;
+    color: #2d5a27; font-size: 0.7rem; font-weight: 500;
+    padding: 3px 9px; border-radius: 10px;
+  }
+  .section-label {
+    font-size: 0.67rem; font-weight: 700; color: #6b7c6b;
+    text-transform: uppercase; letter-spacing: 0.08em; margin: 1rem 0 0.4rem;
+  }
+  .info-card {
+    background: white; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.5rem;
+  }
+  .info-card h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
+  .info-card p { font-size: 0.8rem; color: #4a5e4a; line-height: 1.5; }
+  .tip-card {
+    background: white; border-radius: 12px; padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem; border-left: 3px solid #7cb87c;
+  }
+  .tip-title { font-size: 0.87rem; font-weight: 600; margin-bottom: 3px; }
+  .tip-card p { font-size: 0.79rem; color: #4a5e4a; line-height: 1.5; }
+  .checkin-card {
+    background: #eef4ee; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.5rem;
+  }
+  .checkin-card h3 { font-size: 0.87rem; font-weight: 700; color: #2d5a27; margin-bottom: 2px; }
+  .checkin-card p { font-size: 0.77rem; color: #3a5a3a; line-height: 1.5; }
+  .links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .link-btn {
+    display: inline-block; font-size: 0.74rem; font-weight: 500; color: #2d5a27;
+    background: #eef4ee; border-radius: 20px; padding: 4px 10px;
+    text-decoration: none; white-space: nowrap;
+  }
+  .link-btn.maps { background: #e8f0fe; color: #1a56a0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Zomervakantie 2026 – Fernee</h1>
+  <p>6 jul – 28 jul · 4 personen</p>
+  <button class="today-btn" onclick="goToday()">Vandaag</button>
+</header>
+
+<div class="phase-tabs" id="phaseTabs"></div>
+<div class="day-nav" id="dayNav"></div>
+<div class="content" id="dayContent"></div>
+
+<script>
+const days = [
+  // ── FASE 0: HEEN ──
+  {
+    date:"2026-07-06", label:"Zo 6 jul", phase:0,
+    title:"Phantasialand!",
+    verblijf:"Hotel Strand-Café, Roßbach",
+    checkin:"Hotel Strand-Café, Roßbach",
+    info:[{
+      title:"Phantasialand",
+      text:"Een van de beste pretparken van Europa, bij Brühl vlakbij Keulen. Koop tickets vooraf online — goedkoper en geen wachtrij bij de kassa.",
+      links:[
+        {label:"🎢 Phantasialand.de", url:"https://www.phantasialand.de/nl/"},
+        {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.7993,6.8793", cls:"maps"}
+      ]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-07", label:"Ma 7 jul", phase:0,
+    title:"Reisdag 1 – naar Oostenrijk",
+    verblijf:"Sporthotel Zederhaus, Lungau",
+    checkin:"Sporthotel Zederhaus im Lungau, Zederhaus",
+    info:[{
+      title:"Zederhaus, Lungau",
+      text:"Rustig alpendorp in Salzburger Land. Mooie omgeving om de benen te strekken na een lange reisdag.",
+      links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=47.1167,13.5333", cls:"maps"}]
+    }],
+    tips:[{
+      title:"Vignet Oostenrijk",
+      text:"Vergeet het Oostenrijkse vignet niet! 10-dagenvignet is direct geldig bij aankoop.",
+      links:[{label:"🛒 Koop via ASFINAG", url:"https://shop.asfinag.at/en/products/digital-vignette/"}]
+    }]
+  },
+  // ── FASE 1: BLED ──
+  {
+    date:"2026-07-08", label:"Di 8 jul", phase:1,
+    title:"Reisdag 2 – aankomst Bled",
+    verblijf:"Tourist Farm Mulej, Bled",
+    checkin:"Tourist Farm Mulej, Bled — vanaf 14:00, uitchecken voor 10:00",
+    info:[{
+      title:"Boerderij Mulej",
+      text:"Eeuwenoude boerderij op 1 km van het meer. Gezinsappartement voor 4. Prachtig uitzicht op het platteland en de Julische Alpen. Homemade ontbijt met lokale producten.",
+      links:[
+        {label:"🌐 Website", url:"https://www.turisticna-kmetija-mulej.si/"},
+        {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.351270,14.110074", cls:"maps"}
+      ]
+    }],
+    tips:[{title:"Restaurants in de buurt", text:"Op loopafstand van de boerderij. Vraag je gastheer om aanbevelingen.", links:[]}]
+  },
+  {
+    date:"2026-07-09", label:"Wo 9 jul", phase:1,
+    title:"Dagje Bled",
+    verblijf:"Tourist Farm Mulej, Bled",
+    info:[],
+    tips:[
+      {
+        title:"Vintgar Kloof",
+        text:"1,6 km lang, tot 250 m diep. Max 245 bezoekers per uur — ga vroeg! Toegang inbegrepen.",
+        links:[
+          {label:"🌐 Info", url:"https://www.bled.si/en/what-to-see-do/attractions/6/vintgar-gorge/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.392535,14.084403", cls:"maps"}
+        ]
+      },
+      {
+        title:"Eiland Bled",
+        text:"Vaar met een traditionele pletna naar het eilandje. Klim de 99 treden op, luidt de wensklok.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.3632,14.0924", cls:"maps"}]
+      },
+      {
+        title:"Kasteel Bled",
+        text:"1000 jaar oud kasteel op een rots boven het meer. Museum, drukwerkplaats en koffie met uitzicht.",
+        links:[
+          {label:"🌐 Info", url:"https://www.blejski-grad.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.3688,14.0926", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-10", label:"Do 10 jul", phase:1,
+    title:"Huttentocht dag 1",
+    verblijf:"Koča na Dobrči (berghut)",
+    checkin:"Koča na Dobrči — berghut",
+    info:[{
+      title:"3-daagse huttentocht Gorensjka",
+      text:"Dag 1 van de huttentocht met kinderen in de Julische Alpen. Goede wandelschoenen, regenjas en genoeg water meenemen. Berghut accepteert vrijwel alleen contant geld.",
+      links:[
+        {label:"🌐 Kids in de Bergen", url:"https://www.kidsindebergen.nl/huttentocht-slovenie-met-kinderen-3-daagse-tocht-gorenjska/"},
+        {label:"🗺 Koča na Dobrči", url:"https://www.google.com/maps/search/?api=1&query=46.3736,14.1912", cls:"maps"}
+      ]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-11", label:"Vr 11 jul", phase:1,
+    title:"Huttentocht dag 2",
+    verblijf:"Zelenica Mountain Hut",
+    checkin:"Planinski dom na Zelenici (GUC Zelenica)",
+    info:[{
+      title:"Wandeldag 2",
+      text:"Tweede etappe van de huttentocht. Genieten van het alpiene landschap en uitzichten op de Karawanken.",
+      links:[{label:"🗺 Zelenica hut", url:"https://www.google.com/maps/search/?api=1&query=46.4328,14.1106", cls:"maps"}]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-12", label:"Za 12 jul", phase:1,
+    title:"Huttentocht dag 3 – terug naar Bled",
+    verblijf:"Tourist Farm Mulej, Bled",
+    info:[{
+      title:"Wandeldag 3 – terug naar Mulej",
+      text:"Afsluiting van de huttentocht. Douche, rust en een lekker diner — verdiend na 3 dagen bergen!",
+      links:[]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-13", label:"Zo 13 jul", phase:1,
+    title:"Omgeving Bled verkennen",
+    verblijf:"Tourist Farm Mulej, Bled",
+    info:[],
+    tips:[
+      {
+        title:"Meer van Bohinj",
+        text:"Slovenië's grootste natuurmeer in het Triglav Nationaal Park. Zwemmen, kajakken, wandelen. Rondwandeling ±12 km, 3-4 uur.",
+        links:[
+          {label:"🌐 Info", url:"https://www.bohinj.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.284010,13.859414", cls:"maps"}
+        ]
+      },
+      {
+        title:"Savica Waterval",
+        text:"Een van de mooiste watervallen van Slovenië. Parkeren bij Koča pri Savici (alleen contant!), dan 553 treden omhoog.",
+        links:[
+          {label:"🌐 Info", url:"https://prisavici.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.289586,13.802058", cls:"maps"}
+        ]
+      },
+      {
+        title:"Vogel Kabelbaan",
+        text:"Stijg op naar 1.535 m. Panoramisch uitzicht, wandelroutes en bergcafé. Kinderwagen- en rolstoelvriendelijk.",
+        links:[
+          {label:"🌐 Info", url:"https://vogel.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.238333,13.812500", cls:"maps"}
+        ]
+      },
+      {
+        title:"Ojstrica uitzichtpunt",
+        text:"Het mooiste panorama op het meer, eiland en kasteel. Steile klim van ±20 min vanaf parkeerplaats Velika Zaka.",
+        links:[
+          {label:"🌐 Info", url:"https://www.bled.si/en/what-to-see-do/attractions/4/ojstrica/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.356,14.082", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-14", label:"Ma 14 jul", phase:1,
+    title:"Triglav Nationaal Park",
+    verblijf:"Tourist Farm Mulej, Bled",
+    info:[{
+      title:"Triglav Nationaal Park",
+      text:"Het enige nationale park van Slovenië en het hart van de Julische Alpen. Vraag je gastheer naar wandelroutes op maat.",
+      links:[{label:"🌐 Nationaal Park", url:"https://www.tnp.si/en/"}]
+    }],
+    tips:[
+      {
+        title:"Mostnica Kloof",
+        text:"Alpiene rivier met diepe canyons en de beroemde Olifantenrots. Beginpunt dorp Stara Fužina, ±1-1,5 uur.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.298,13.888", cls:"maps"}]
+      },
+      {
+        title:"Zadnja Trenta vallei",
+        text:"Spectaculair dal aan de voet van de Triglav. Rustig en minder bezocht dan Bohinj.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.411,13.699", cls:"maps"}]
+      }
+    ]
+  },
+  // ── FASE 2: KUST ──
+  {
+    date:"2026-07-15", label:"Di 15 jul", phase:2,
+    title:"Ljubljana + aankomst kust",
+    verblijf:"Apartment Černetič, Portorož",
+    checkin:"Apartment Černetič, Portorož",
+    info:[{
+      title:"Uitchecken Mulej voor 10:00",
+      text:"Daarna via Ljubljana naar de kust. Portorož is het Sloveense kuuroord aan de Adriatische Zee.",
+      links:[{label:"🗺 Portorož", url:"https://www.google.com/maps/search/?api=1&query=45.516667,13.591667", cls:"maps"}]
+    }],
+    tips:[
+      {
+        title:"Tussenstop Ljubljana",
+        text:"Gezellige hoofdstad op loopafstand te verkennen. Kasteel, Oude Stad, Drievoudige Brug en Tivoli Park.",
+        links:[
+          {label:"🌐 Visit Ljubljana", url:"https://www.visitljubljana.com/en/visitors/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.056946,14.505751", cls:"maps"}
+        ]
+      },
+      {
+        title:"Piran",
+        text:"Prachtig middeleeuws havenstadje. Smalle straatjes, Venetiaanse architectuur, uitzicht van de stadsmuren.",
+        links:[
+          {label:"🌐 Info", url:"https://www.portoroz.si/en/discover/piran"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.528319,13.568289", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-16", label:"Wo 16 jul", phase:2,
+    title:"Istralandia",
+    verblijf:"Apartment Černetič, Portorož",
+    info:[{
+      title:"Aquapark Istralandia",
+      text:"Een van de grootste waterparken van Kroatië — 6 zwembaden, 17 glijbanen en het grootste golfslagbad van de Middellandse Zee. Koop tickets vooraf online, goedkoper dan aan de kassa. Net over de grens in Kroatisch Istrië (euro's welkom).",
+      links:[
+        {label:"🌐 istralandia.com", url:"https://istralandia.com/"},
+        {label:"🎟 Tickets kopen", url:"https://webshop.istralandia.hr/en/"},
+        {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.3167,13.5667", cls:"maps"}
+      ]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-17", label:"Do 17 jul", phase:2,
+    title:"Kustdag",
+    verblijf:"Apartment Černetič, Portorož",
+    info:[],
+    tips:[
+      {
+        title:"Piran",
+        text:"Middeleeuws havenstadje met Venetiaans karakter. Smalle straatjes, gezellige pleinen en heerlijk ijs.",
+        links:[
+          {label:"🌐 Info", url:"https://www.portoroz.si/en/discover/piran"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.528319,13.568289", cls:"maps"}
+        ]
+      },
+      {
+        title:"Istralandia Waterpark",
+        text:"Nog geen kans gehad? Vandaag alsnog! 6 zwembaden en 17 glijbanen net over de grens in Kroatië.",
+        links:[
+          {label:"🌐 istralandia.com", url:"https://istralandia.com/"},
+          {label:"🎟 Tickets", url:"https://webshop.istralandia.hr/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.3167,13.5667", cls:"maps"}
+        ]
+      },
+      {
+        title:"Sečovlje Zoutpannen",
+        text:"700 jaar zoutwinning. Museum van de Zoutwinning, natuurreservaat met zeldzame vogels en rustige wandelpaden.",
+        links:[
+          {label:"🌐 Info", url:"https://www.kpss.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.475759,13.618335", cls:"maps"}
+        ]
+      },
+      {
+        title:"Strunjan",
+        text:"Hoogste klifkusten van de Adriatische Zee. Spectaculair uitzicht en rustig strandgebied.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.532,13.617", cls:"maps"}]
+      },
+      {
+        title:"Marezige",
+        text:"Sfeervol Istrisch dorpje met olijfgaarden. Proef zelfgemaakte olijfolie en wijn van de locals.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.507682,13.800471", cls:"maps"}]
+      }
+    ]
+  },
+  // ── FASE 3: DOLENJSKA ──
+  {
+    date:"2026-07-18", label:"Vr 18 jul", phase:3,
+    title:"Doorreis naar Dolenjska",
+    verblijf:"Rooms & Restaurant Ostarija, Dolenjske Toplice",
+    checkin:"Ostarija Herbelier, Dolenjske Toplice — vanaf 14:00, uitchecken voor 10:00",
+    info:[
+      {title:"Uitchecken Portorož voor 10:00", text:"", links:[]},
+      {
+        title:"Restaurant Ostarija",
+        text:"Chef Robi staat bekend om mooie borden én heerlijk lokaal eten. Kruiden uit eigen tuin in alles verwerkt.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.755809,15.059413", cls:"maps"}]
+      }
+    ],
+    tips:[
+      {
+        title:"Tussenstop: Meer van Cerknica",
+        text:"Een van Europa's grootste periodieke meren — verdwijnt en verschijnt met de seizoenen. Bijzonder fenomeen.",
+        links:[
+          {label:"🌐 Info", url:"https://www.notranjski-park.si/en/nature/natural-sights/lake-cerknica"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.766261,14.354407", cls:"maps"}
+        ]
+      },
+      {
+        title:"Tussenstop: Rakov Škocjan",
+        text:"Spectaculaire karstengte met twee natuurlijke bruggen, overblijfselen van ingestorte grotteplafonds.",
+        links:[
+          {label:"🌐 Info", url:"https://visit-postojna.si/en/rakov-skocjan/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.786364,14.299563", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-19", label:"Za 19 jul", phase:3,
+    title:"Novo Mesto",
+    verblijf:"Rooms & Restaurant Ostarija, Dolenjske Toplice",
+    info:[{
+      title:"Virtuele stadstour Novo Mesto",
+      text:"Download de app 'Secrets of Dolenjska' (Google Play) en verken de historische binnenstad interactief — gratis!",
+      links:[
+        {label:"📱 Google Play", url:"https://play.google.com/store/apps/details?id=com.secretsofdolenjska"},
+        {label:"🗺 Novo Mesto", url:"https://www.google.com/maps/search/?api=1&query=45.801082,15.171008", cls:"maps"}
+      ]
+    }],
+    tips:[
+      {
+        title:"Kasteel Otočec",
+        text:"Enige waterkasteeltje van Slovenië, op een eilandje in de Krka rivier. Romantisch en prachtig gefotografeerd.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.833954,15.220885", cls:"maps"}]
+      },
+      {
+        title:"SUP / Boten op de Krka",
+        text:"Jullie boot/SUP ligt al klaar! Geniet van Novo Mesto vanuit het water — zit in het arrangement.",
+        links:[{label:"🗺 Vertrekpunt", url:"https://www.google.com/maps/search/?api=1&query=45.801,15.171", cls:"maps"}]
+      },
+      {
+        title:"Trška Gora",
+        text:"Heuvel vol wijngaarden boven Novo Mesto. Proefjes bij lokale wijnboeren in hun kelders.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.841181,15.188389", cls:"maps"}]
+      }
+    ]
+  },
+  {
+    date:"2026-07-20", label:"Zo 20 jul", phase:3,
+    title:"Bela Krajina",
+    verblijf:"Rooms & Restaurant Ostarija, Dolenjske Toplice",
+    info:[{
+      title:"Bela Krajina regio",
+      text:"Groene weiden en witte berkenbomen langs de Kolpa rivier. Steden Metlika, Črnomelj en Vinica.",
+      links:[{label:"🌐 Info", url:"https://www.visitbelakrajina.si/"}]
+    }],
+    tips:[
+      {
+        title:"Zwemmen in de Kolpa",
+        text:"Slovenië's warmste en veiligste rivier. Rustige stroming, perfect voor kinderen. Kano en kajak te huur.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.55,15.19", cls:"maps"}]
+      },
+      {
+        title:"Lahinja Landschapspark",
+        text:"Otter, bever, ijsvogel en wilde orchideeën in een klein maar bijzonder rijk park.",
+        links:[
+          {label:"🌐 Info", url:"https://www.kp-lahinja.si/en"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.509017,15.188766", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  // ── FASE 4: HEUVELS ──
+  {
+    date:"2026-07-21", label:"Ma 21 jul", phase:4,
+    title:"Reisdag naar de bergen",
+    verblijf:"Tourist Farm Firbas, Cerkvenjak",
+    checkin:"Homestead Firbas, Cerkvenjak — vanaf 16:00, uitchecken voor 10:00",
+    info:[
+      {title:"Uitchecken Ostarija voor 10:00", text:"", links:[]},
+      {
+        title:"Boerderij Firbas",
+        text:"Alles hier gaat met passie, liefde en respect. Rondleiding, dieren voeren, zwembad en een houten bad onder de sterren.",
+        links:[
+          {label:"🌐 firbas.com", url:"http://www.firbas.com/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.587540,15.967180", cls:"maps"}
+        ]
+      }
+    ],
+    tips:[
+      {
+        title:"Tussenstop: Kostanjevica na Krki",
+        text:"Kleinste bewoonde eilandstad van Slovenië, omringd door de Krka. Historische huizen en houten rivierbruggen.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=45.844972,15.421716", cls:"maps"}]
+      },
+      {
+        title:"Tussenstop: Ptuj",
+        text:"Oudste stad van Slovenië. Middeleeuwse gevels, Romeinse overblijfselen en Kasteel Ptuj op de heuvel.",
+        links:[
+          {label:"🌐 Visit Ptuj", url:"https://www.visitptuj.eu/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.419953,15.869688", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-22", label:"Di 22 jul", phase:4,
+    title:"Pool en wijn",
+    verblijf:"Tourist Farm Firbas, Cerkvenjak",
+    info:[{
+      title:"Ontspandag op de boerderij",
+      text:"Zwembad, houten bad, de dieren — lekker niks doen. Firbas heeft ook eigen wijn: ideaal moment voor een proeverij met de gastheer.",
+      links:[{label:"🌐 firbas.com", url:"http://www.firbas.com/"}]
+    }],
+    tips:[]
+  },
+  {
+    date:"2026-07-23", label:"Wo 23 jul", phase:4,
+    title:"Dagje klimmen",
+    verblijf:"Tourist Farm Firbas, Cerkvenjak",
+    info:[{
+      title:"Klimmen in de omgeving",
+      text:"De Sloveense heuvels bieden mooie klimroutes voor gevorderden en beginners. Vraag Firbas naar de beste locaties.",
+      links:[]
+    }],
+    tips:[
+      {
+        title:"Maribor",
+        text:"Tweede stad van Slovenië. Gezellige binnenstad, Drava rivier en de Stara Trta — de oudste wijnstok ter wereld.",
+        links:[
+          {label:"🌐 Visit Maribor", url:"https://www.visitmaribor.si/en/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.554650,15.645881", cls:"maps"}
+        ]
+      },
+      {
+        title:"Vinarium Uitkijktoren",
+        text:"53 m hoge toren met 360° uitzicht over 4 landen tegelijk. Lift aanwezig, of 240 treden klimmen.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.567550,16.468377", cls:"maps"}]
+      }
+    ]
+  },
+  {
+    date:"2026-07-24", label:"Do 24 jul", phase:4,
+    title:"Extra zwembaddag",
+    verblijf:"Tourist Farm Firbas, Cerkvenjak",
+    info:[{
+      title:"Laatste dag Firbas",
+      text:"Zwembad, houten bad, de boerderij in — geniet van de laatste avond in Slovenië.",
+      links:[{label:"🌐 firbas.com", url:"http://www.firbas.com/"}]
+    }],
+    tips:[
+      {
+        title:"Murska Sobota",
+        text:"Energieke stad met het grootste kasteel van Slovenië en de Expano-tentoonstelling over de Mura rivier.",
+        links:[{label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=46.658138,16.161029", cls:"maps"}]
+      }
+    ]
+  },
+  // ── FASE 5: TAUNUS ──
+  {
+    date:"2026-07-25", label:"Vr 25 jul", phase:5,
+    title:"Reisdag naar Taunusstein",
+    verblijf:"Home Exchange, Taunusstein",
+    checkin:"Home Exchange Taunusstein",
+    info:[
+      {title:"Uitchecken Firbas voor 10:00", text:"", links:[]},
+      {
+        title:"Taunusstein, Hessen",
+        text:"Rustige stad in de Taunus, vlakbij Wiesbaden (15 min) en Frankfurt (30 min). Perfecte uitvalsbasis.",
+        links:[{label:"🗺 Taunusstein", url:"https://www.google.com/maps/search/?api=1&query=50.1336,8.1578", cls:"maps"}]
+      }
+    ],
+    tips:[]
+  },
+  {
+    date:"2026-07-26", label:"Za 26 jul", phase:5,
+    title:"Omgeving verkennen",
+    verblijf:"Home Exchange, Taunusstein",
+    info:[],
+    tips:[
+      {
+        title:"Taunus Wunderland",
+        text:"Gezellig familiepark speciaal voor kinderen van 4-12 jaar. Achtbanen, Dinotal, boerderij — vlakbij Schlangenbad.",
+        links:[
+          {label:"🌐 taunus-wunderland.de", url:"https://www.taunus-wunderland.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.1058,8.1278", cls:"maps"}
+        ]
+      },
+      {
+        title:"Neroberg Wiesbaden",
+        text:"Huisheuvel van Wiesbaden, bereikbaar met de unieke watergedreven kabeltram. Boven: klimbos, zwembad en panorama over de stad.",
+        links:[
+          {label:"🌐 Info", url:"https://www.neroberg.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.082778,8.233333", cls:"maps"}
+        ]
+      },
+      {
+        title:"Fasanerie Wiesbaden",
+        text:"Gratis dieren- en plantenpark in het stadsbos. Wolven, beren, roofvogels, edelherten en grote avonturenspeeltuin.",
+        links:[
+          {label:"🌐 Info", url:"https://www.fasanerie.net/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.108056,8.183333", cls:"maps"}
+        ]
+      },
+      {
+        title:"Kasteel Freudenberg",
+        text:"Ervaringswandeling door kasteel en park voor 3-103 jaar. Optische illusies, blotevoetenpad, schatkist — plan 4 uur.",
+        links:[
+          {label:"🌐 Info", url:"https://www.schlossfreudenberg.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.0822,8.1917", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-27", label:"Zo 27 jul", phase:5,
+    title:"Frankfurt of Rheingau",
+    verblijf:"Home Exchange, Taunusstein",
+    info:[],
+    tips:[
+      {
+        title:"Frankfurt (30 min)",
+        text:"Römerberg, Sachsenhausen, dierentuin in het centrum of de Palmengarten met speeltuinen en roeibootjes.",
+        links:[
+          {label:"🌐 Visit Frankfurt", url:"https://www.frankfurt-tourismus.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.110924,8.682127", cls:"maps"}
+        ]
+      },
+      {
+        title:"Rheingau wijnroute",
+        text:"UNESCO Boven-Rijndal met meer dan 40 middeleeuwse kastelen en wijngaarden. Rieslingproeverijen in de zomerse dorpen.",
+        links:[
+          {label:"🌐 Rheingau.com", url:"https://www.rheingau.com/"},
+          {label:"🗺 Rüdesheim", url:"https://www.google.com/maps/search/?api=1&query=49.9786,7.9262", cls:"maps"}
+        ]
+      },
+      {
+        title:"Opel Zoo (Kronberg)",
+        text:"Grote dierentuin op 28 km met savanne, tropen, zee en gebergte. Populair bij families.",
+        links:[
+          {label:"🌐 opelzoo.de", url:"https://www.opelzoo.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.177778,8.512778", cls:"maps"}
+        ]
+      },
+      {
+        title:"Saalburg Romeins Fort",
+        text:"Het enige volledig gereconstrueerde Romeinse fort ter wereld, UNESCO-erfgoed. Op 20 min van Taunusstein.",
+        links:[
+          {label:"🌐 saalburg.de", url:"https://www.saalburg.de/"},
+          {label:"🗺 Maps", url:"https://www.google.com/maps/search/?api=1&query=50.256944,8.565556", cls:"maps"}
+        ]
+      }
+    ]
+  },
+  {
+    date:"2026-07-28", label:"Ma 28 jul", phase:5,
+    title:"Terugreis naar huis",
+    verblijf: null,
+    info:[{
+      title:"Veilige thuisreis!",
+      text:"Laatste ontbijt, nog een blik op de Taunus en dan richting Nederland. Ongeveer 3,5 uur rijden naar Eindhoven.",
+      links:[]
+    }],
+    tips:[]
+  }
+];
+
+const phases = [
+  {label:"🎢 Heen"},
+  {label:"🏔 Bled"},
+  {label:"🌊 Kust"},
+  {label:"🏛 Dolenjska"},
+  {label:"🌿 Heuvels"},
+  {label:"🏡 Taunus"}
+];
+
+let currentPhase = 0;
+
+function renderPhaseTabs() {
+  document.getElementById('phaseTabs').innerHTML = phases.map((p,i) =>
+    `<button class="phase-tab ${i===currentPhase?'active':''}" onclick="setPhase(${i})">${p.label}</button>`
+  ).join('');
+}
+
+function setPhase(i) {
+  currentPhase = i;
+  renderPhaseTabs();
+  const pd = days.filter(d => d.phase === i);
+  renderDayNav(pd);
+  showDay(days.indexOf(pd[0]));
+}
+
+function renderDayNav(pd) {
+  document.getElementById('dayNav').innerHTML = pd.map(d => {
+    const idx = days.indexOf(d);
+    return `<button class="day-pill" data-idx="${idx}" onclick="showDay(${idx})">${d.label}</button>`;
+  }).join('');
+}
+
+function linksHtml(links) {
+  if (!links || !links.length) return '';
+  return `<div class="links">${links.map(l =>
+    `<a class="link-btn ${l.cls||''}" href="${l.url}" target="_blank">${l.label}</a>`
+  ).join('')}</div>`;
+}
+
+function showDay(idx) {
+  const d = days[idx];
+  document.querySelectorAll('.day-pill').forEach(p =>
+    p.classList.toggle('active', parseInt(p.dataset.idx) === idx)
+  );
+  document.querySelector(`.day-pill[data-idx="${idx}"]`)
+    ?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+
+  let html = `<div class="day-header">
+    <div class="date-label">${d.label}</div>
+    <h2>${d.title}</h2>`;
+  if (d.verblijf) html += `<span class="night-badge">🏠 ${d.verblijf}</span>`;
+  html += `</div>`;
+
+  if (d.checkin) {
+    html += `<div class="checkin-card"><h3>Verblijf</h3><p>${d.checkin}</p></div>`;
+  }
+
+  const realInfo = d.info.filter(i => i.text);
+  if (realInfo.length) {
+    html += `<div class="section-label">Vandaag</div>`;
+    for (const item of realInfo) {
+      html += `<div class="info-card"><h3>${item.title}</h3><p>${item.text}</p>${linksHtml(item.links)}</div>`;
+    }
+  }
+
+  if (d.tips.length) {
+    html += `<div class="section-label">Tips & activiteiten</div>`;
+    for (const tip of d.tips) {
+      html += `<div class="tip-card"><div class="tip-title">${tip.title}</div><p>${tip.text}</p>${linksHtml(tip.links)}</div>`;
+    }
+  }
+
+  document.getElementById('dayContent').innerHTML = html;
+}
+
+function goToday() {
+  const today = new Date().toISOString().split('T')[0];
+  const idx = days.findIndex(d => d.date === today);
+  if (idx >= 0) {
+    currentPhase = days[idx].phase;
+    renderPhaseTabs();
+    renderDayNav(days.filter(d => d.phase === currentPhase));
+    showDay(idx);
+  }
+}
+
+renderPhaseTabs();
+setPhase(0);
+</script>
+</body>
+</html>
